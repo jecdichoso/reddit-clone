@@ -1,5 +1,6 @@
 package com.project.redditclone.controller;
 
+import com.project.redditclone.dto.LoginReqest;
 import com.project.redditclone.dto.RegisterRequest;
 import com.project.redditclone.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -27,4 +28,10 @@ public class AuthController {
         authService.verifyAccount(token);
         return new ResponseEntity<>("Activated the account successfully!", HttpStatus.OK);
     }
+
+    @PostMapping("/login")
+    public void login(@RequestBody LoginReqest loginReqest){ //this is just the same DTO we used for registerreq
+        authService.login(loginReqest);
+    }
+
 }

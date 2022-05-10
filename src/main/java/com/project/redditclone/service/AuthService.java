@@ -1,5 +1,6 @@
 package com.project.redditclone.service;
 
+import com.project.redditclone.dto.LoginReqest;
 import com.project.redditclone.dto.RegisterRequest;
 import com.project.redditclone.exceptions.SpringRedditException;
 import com.project.redditclone.model.NotificationEmail;
@@ -8,6 +9,9 @@ import com.project.redditclone.model.VerificationToken;
 import com.project.redditclone.repository.UserRepository;
 import com.project.redditclone.repository.VerificationTokenRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +41,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
 
     //transactional added cause we are interacting on the relational db -jecd
     @Transactional
@@ -80,5 +85,10 @@ public class AuthService {
         User user = userRepository.findByUsername(username).orElseThrow(()->new SpringRedditException("User with username: "+username+" does not Exist"));
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    public void login(LoginReqest loginReqest) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginReqest.getUsername(),
+                loginReqest.getPassword()));
     }
 }
