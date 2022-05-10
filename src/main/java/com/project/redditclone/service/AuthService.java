@@ -1,6 +1,7 @@
 package com.project.redditclone.service;
 
 import com.project.redditclone.dto.RegisterRequest;
+import com.project.redditclone.exceptions.SpringRedditException;
 import com.project.redditclone.model.NotificationEmail;
 import com.project.redditclone.model.User;
 import com.project.redditclone.model.VerificationToken;
@@ -11,11 +12,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotBlank;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class AuthService {
 
     //contains the business logic to register the users
@@ -64,4 +68,17 @@ public class AuthService {
         return token;
     }
 
+    public void verifyAccount(String token) {
+        Optional<VerificationToken> verficationToken = verificationTokenRepository.findByToken(token);
+        verficationToken.orElseThrow(() -> new SpringRedditException("Invalid Token"));
+        fetchUserAndEnable(verficationToken.get());
+    }
+
+
+    private void fetchUserAndEnable(VerificationToken verificationToken) {
+        String username = verificationToken.getUser().getUsername();
+        User user = userRepository.findByUsername(username).orElseThrow(()->new SpringRedditException("User with username: "+username+" does not Exist"));
+        user.setEnabled(true);
+        userRepository.save(user);
+    }
 }
