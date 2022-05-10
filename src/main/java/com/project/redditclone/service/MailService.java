@@ -19,6 +19,8 @@ class MailService {
     private final JavaMailSender mailSender;
     private final MailContentBuilder mailContentBuilder;
 
+    //async is to reduce response time/api call on the registration post
+    // alternate would be message queue like rabbit/activemq, research it!! -jecd
     @Async
     void sendMail(NotificationEmail notificationEmail) {
         MimeMessagePreparator messagePreparator = mimeMessage -> {
