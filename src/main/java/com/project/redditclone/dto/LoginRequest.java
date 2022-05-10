@@ -4,12 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Access;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginReqest {
+public class LoginRequest {
     //This is a DTO
     private String email;
     private String password;

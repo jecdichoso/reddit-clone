@@ -1,6 +1,7 @@
 package com.project.redditclone.controller;
 
-import com.project.redditclone.dto.LoginReqest;
+import com.project.redditclone.dto.AuthenticationResponse;
+import com.project.redditclone.dto.LoginRequest;
 import com.project.redditclone.dto.RegisterRequest;
 import com.project.redditclone.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -30,8 +31,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody LoginReqest loginReqest){ //this is just the same DTO we used for registerreq
-        authService.login(loginReqest);
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest){ //this is just the same DTO we used for registerreq
+        return authService.login(loginRequest);
     }
 
 }

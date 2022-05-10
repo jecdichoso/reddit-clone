@@ -1,6 +1,7 @@
 package com.project.redditclone.service;
 
-import com.project.redditclone.dto.LoginReqest;
+import com.project.redditclone.dto.AuthenticationResponse;
+import com.project.redditclone.dto.LoginRequest;
 import com.project.redditclone.dto.RegisterRequest;
 import com.project.redditclone.exceptions.SpringRedditException;
 import com.project.redditclone.model.NotificationEmail;
@@ -8,15 +9,16 @@ import com.project.redditclone.model.User;
 import com.project.redditclone.model.VerificationToken;
 import com.project.redditclone.repository.UserRepository;
 import com.project.redditclone.repository.VerificationTokenRepository;
+import com.project.redditclone.security.JwtProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotBlank;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,6 +44,7 @@ public class AuthService {
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
     private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
 
     //transactional added cause we are interacting on the relational db -jecd
     @Transactional
@@ -87,8 +90,24 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public void login(LoginReqest loginReqest) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginReqest.getUsername(),
-                loginReqest.getPassword()));
+    public AuthenticationResponse login(LoginRequest loginRequest) {
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+                loginRequest.getPassword()));
+
+        //this is after setting up jwt mechanism -jecd
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        //if you wanna check if the user is logged in or not, you can look up the
+        //security context for the authenticate object, if you find the obj, then
+        //the user is logged in
+        String token = jwtProvider.generateToken(authenticate);
+        //this returns a string that is our authentication token
+        //now we can send this token back to the user
+        //to send this token, we're going to use a dto called authentication response -jecd
+//        return new AuthenticationResponse(token, loginRequest.getUsername());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .username(loginRequest.getUsername())
+                .build();
+
     }
 }
