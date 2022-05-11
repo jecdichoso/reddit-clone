@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -86,6 +87,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                 .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
                 );
+        //this is  so that spring security knows about our jwt filter -jecd, update 2022-05-11: Not needed
+        //httpSecurity.addFilterBefore(jwtAuthenticationFilter,
+        // UsernamePasswordAuthenticationFilter.class);
 
     }
 
